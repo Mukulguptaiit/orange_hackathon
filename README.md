@@ -1,73 +1,235 @@
-# CyberWatchdog
+# 🛡️ CyberWatchdog - Multi-Agent AI Cybersecurity Analysis System
 
-CyberWatchdog is a comprehensive threat detection and analysis tool designed to monitor network traffic and identify potential security threats. This project utilizes various agents to classify, validate, and analyze network traffic, providing insights into potential malware, phishing attempts, DDoS attacks, and data breaches.
+A sophisticated, AI-powered cybersecurity analysis platform that processes network traffic logs using multiple specialized agents to detect, classify, validate, and respond to security threats in real-time.
 
-## Project Structure
+## 🎯 Project Overview
+
+CyberWatchdog is a **multi-agent AI-enabled Cybersecurity Watchdog** that:
+
+1. **Reads and processes** network traffic logs from CSV files
+2. **Classifies threats** into categories (Malware, Phishing, DDoS, Data Breach, Brute Force, etc.)
+3. **Validates classifications** using 5x self-consistency checks
+4. **Routes threats** to specialized response agents
+5. **Generates comprehensive reports** with visualizations and actionable insights
+
+## 🏗️ Architecture
 
 ```
-cyberwatchdog
-├── data
-│   └── network_traffic_logs.csv
-├── agents
-│   ├── classifier_agent.py
-│   ├── validator_agent.py
-│   ├── malware_agent.py
-│   ├── phishing_agent.py
-│   ├── ddos_agent.py
-│   └── data_breach_agent.py
-├── pipeline
-│   └── threat_pipeline.py
-├── reporting
-│   ├── dashboard.py
-│   └── report_writer.py
-├── main.py
-└── README.md
+cyberwatchdog/
+│── data/                           # Raw input logs
+│   └── network_traffic_logs.csv    # Sequential log data (timestamps)
+│
+│── agents/                         # All AI Agents (LangChain + CrewAI)
+│   ├── classifier_agent.py         # Classifies threats into categories
+│   ├── validator_agent.py          # Validates classification & severity
+│   ├── malware_agent.py            # Handles malware response actions
+│   ├── phishing_agent.py           # Handles phishing response actions
+│   ├── ddos_agent.py               # Handles DDoS response actions
+│   ├── data_breach_agent.py        # Handles data breach response actions
+│   └── common.py                   # Shared LLM configuration
+│
+│── pipeline/                       
+│   └── threat_pipeline.py          # Orchestrates entire flow
+│
+│── reporting/                      
+│   ├── dashboard.py                # Visualization of attack patterns
+│   └── report_writer.py            # Final structured incident reports
+│
+│── main.py                         # Streamlit frontend application
+│── requirements.txt                # Python dependencies
+└── README.md                       # This file
 ```
 
-## Setup Instructions
+## 🔄 Data Flow
 
-1. Clone the repository:
+```mermaid
+flowchart TD
+    A[📂 CSV Logs] -->|Row by Row| B[🔍 Classifier Agent]
+    B --> C[✔️ Validator Agent]
+    C -->|Route by Threat Type| D[⚡ Specialized Agents]
+    
+    D --> D1[🛡 Malware Agent]
+    D --> D2[🎣 Phishing Agent]
+    D --> D3[🌐 DDoS Agent]
+    D --> D4[📂 Data Breach Agent]
+    
+    D1 --> E[📊 Dashboard + Report]
+    D2 --> E
+    D3 --> E
+    D4 --> E
+    
+    E --> F[📑 Final Report Writer]
+    F --> G[🖥 User Interface]
+```
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.8+
+- API keys for LLM services (optional - demo mode available)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd orange_hackathon
    ```
-   git clone https://github.com/yourusername/cyberwatchdog.git
-   ```
-2. Navigate to the project directory:
-   ```
-   cd cyberwatchdog
-   ```
-3. Install the required dependencies:
-   ```
+
+2. **Install dependencies**
+   ```bash
    pip install -r requirements.txt
    ```
 
-## Usage Guidelines
+3. **Set up environment variables** (optional)
+   ```bash
+   # Create .env file
+   echo "GROQ_API_KEY=your_groq_api_key" > .env
+   echo "OPENAI_API_KEY=your_openai_api_key" >> .env
+   ```
 
-To run the application, execute the following command:
+4. **Run the application**
+   ```bash
+   streamlit run main.py
+   ```
+
+### Usage
+
+1. **Start the application** - The Streamlit interface will open in your browser
+2. **Click "Next Row"** - Process network logs one by one
+3. **Use batch processing** - Process multiple rows at once
+4. **View results** - See real-time analysis, visualizations, and reports
+5. **Generate reports** - Download comprehensive security reports
+
+## 🎛️ Features
+
+### 🤖 Multi-Agent AI System
+
+- **Classifier Agent**: Analyzes network logs and identifies threat types
+- **Validator Agent**: Performs 5x self-consistency validation
+- **Specialized Response Agents**: 
+  - Malware Agent: Ransomware, trojans, C2 beacons
+  - Phishing Agent: Social engineering, credential harvesting
+  - DDoS Agent: Volumetric attacks, botnet mitigation
+  - Data Breach Agent: Exfiltration, insider threats
+
+### 📊 Real-Time Dashboard
+
+- **Overview**: Key metrics and threat distribution
+- **Threat Analysis**: Severity distribution and confidence scores
+- **Trends**: Temporal analysis of threats over time
+- **Details**: Comprehensive analysis of each event
+
+### 📈 Advanced Visualizations
+
+- Interactive charts using Plotly
+- Threat type distribution pie charts
+- Severity and confidence histograms
+- Temporal trend analysis
+- Top IOCs visualization
+
+### 📋 Comprehensive Reporting
+
+- Structured incident reports
+- Executive summaries
+- Actionable recommendations
+- Downloadable markdown reports
+
+## 🔧 Configuration
+
+### LLM Providers
+
+The system supports multiple LLM providers with automatic fallback:
+
+1. **Groq** (recommended) - Fast and cost-effective
+2. **OpenAI** - High-quality responses
+3. **Mock LLM** - Demo mode when no API keys are available
+
+### Environment Variables
+
+```bash
+# Required for production use
+GROQ_API_KEY=your_groq_api_key
+OPENAI_API_KEY=your_openai_api_key
+
+# Optional
+LOG_LEVEL=INFO
 ```
-python main.py
+
+## 📊 Data Format
+
+The system expects CSV files with the following columns:
+
+```csv
+Source IP,Destination IP,Protocol,Packet Size (bytes),Flow Duration (s),Threat,Threat Type,Event Type,User,Success,Timestamp
 ```
 
-## Agents Overview
+### Sample Data
 
-- **ClassifierAgent**: Trains and evaluates machine learning models to classify network traffic.
-- **ValidatorAgent**: Validates the integrity and accuracy of the data being processed.
-- **MalwareAgent**: Detects and analyzes malware within network traffic.
-- **PhishingAgent**: Identifies phishing attempts based on traffic patterns and content analysis.
-- **DDoSAgent**: Detects and mitigates Distributed Denial of Service attacks.
-- **DataBreachAgent**: Identifies potential data breaches based on traffic anomalies.
+```csv
+60.76.63.208,145.221.28.166,TCP,666.3,3.16,No,,Privilege Escalation,guest,Yes,20/04/24 0:00
+67.230.88.161,188.188.11.5,TCP,1247.71,1.06,Yes,Phishing,Failed Login,guest,No,20/04/24 13:00
+```
 
-## Pipeline
+## 🛠️ Development
 
-The `threat_pipeline.py` orchestrates the execution of various agents to analyze network traffic and detect threats.
+### Adding New Agents
 
-## Reporting
+1. Create a new agent file in `agents/`
+2. Define the agent and task functions
+3. Add routing logic in `pipeline/threat_pipeline.py`
+4. Update the dashboard if needed
 
-- **Dashboard**: Visualizes threat data and presents it in a user-friendly format.
-- **ReportWriter**: Generates and saves reports based on the analysis performed by the agents.
+### Customizing Analysis
 
-## Contributing
+- Modify threat types in agent files
+- Adjust validation parameters
+- Customize response templates
+- Add new visualization types
 
-Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
+## 🔒 Security Features
 
-## License
+- **Input Validation**: All network logs are validated before processing
+- **Error Handling**: Graceful handling of malformed data
+- **Confidence Scoring**: Uncertainty quantification for all classifications
+- **Audit Trail**: Complete logging of all analysis steps
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+## 📈 Performance
+
+- **Real-time Processing**: Each log entry processed in seconds
+- **Batch Processing**: Handle multiple entries efficiently
+- **Memory Efficient**: Processes data row by row
+- **Scalable**: Easy to extend for larger datasets
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- **LangChain** - LLM orchestration framework
+- **CrewAI** - Multi-agent collaboration
+- **Streamlit** - Web application framework
+- **Plotly** - Interactive visualizations
+- **Pandas** - Data manipulation
+
+## 📞 Support
+
+For questions, issues, or contributions:
+
+- Create an issue on GitHub
+- Contact the development team
+- Check the documentation
+
+---
+
+**🛡️ CyberWatchdog** - Protecting digital assets with AI-powered intelligence
