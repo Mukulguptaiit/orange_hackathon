@@ -5,8 +5,8 @@ from .common import get_llm
 
 ddos_agent = Agent(
     role="DDoS Response Agent",
-    goal="Mitigate volumetric and application-layer DDoS.",
-    backstory="Network defense, WAF rate-limits, ACLs, CDN shielding.",
+    goal="Propose precise, actionable steps to mitigate and defend against DDoS attacks.",
+    backstory="Specialist in DDoS, volumetric attacks, application layer attacks, botnet mitigation.",
     verbose=False,
     llm=get_llm()
 )
@@ -24,12 +24,15 @@ Original Record (JSON):
 
 Output a concise MARKDOWN action plan:
 - Immediate actions (bullets)
-- Network/WAF rules (bullets)
-- Upstream coordination/CDN (bullets)
-- Monitoring (1–2 bullets)
+- Traffic filtering (bullets)
+- Infrastructure scaling (bullets)
+- Monitoring/Alerting (1–2 bullets)
     """.strip()
     return Task(
         description=prompt,
         expected_output="Markdown action plan for DDoS",
         agent=ddos_agent
     )
+
+# Default task for pipeline
+ddos_task = make_ddos_task("{}", {})

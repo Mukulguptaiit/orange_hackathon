@@ -17,9 +17,9 @@ classifier_agent = Agent(
     llm=get_llm()
 )
 
-def make_classification_task(record: dict, baselines: dict) -> Task:
+def make_classification_task(record: dict, baselines: dict = None) -> Task:
     record_json = json.dumps(record, default=str)
-    baseline_json = json.dumps(baselines, default=str)
+    baseline_json = json.dumps(baselines or {}, default=str)
 
     prompt = f"""
 You are a cybersecurity classifier.
@@ -51,3 +51,6 @@ Return ONLY valid JSON:
         expected_output="Strict JSON with keys: threat_type, severity, iocs, signature",
         agent=classifier_agent
     )
+
+# Default task for pipeline
+classification_task = make_classification_task({})

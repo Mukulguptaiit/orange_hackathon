@@ -5,8 +5,8 @@ from .common import get_llm
 
 data_breach_agent = Agent(
     role="Data Breach Response Agent",
-    goal="Contain exfiltration, protect secrets, start IR, and legal/compliance notifications.",
-    backstory="Incident response for leaks/exfil.",
+    goal="Propose precise, actionable steps to contain and investigate data breaches.",
+    backstory="Specialist in data exfiltration, insider threats, database breaches, compliance reporting.",
     verbose=False,
     llm=get_llm()
 )
@@ -23,13 +23,16 @@ Original Record (JSON):
 {rec}
 
 Output a concise MARKDOWN action plan:
-- Immediate containment (bullets)
-- Credential/token rotation (bullets)
-- Legal/compliance comms (bullets)
-- Forensics & monitoring (1–2 bullets)
+- Immediate actions (bullets)
+- Data containment (bullets)
+- Investigation steps (bullets)
+- Compliance reporting (1–2 bullets)
     """.strip()
     return Task(
         description=prompt,
         expected_output="Markdown action plan for data breach",
         agent=data_breach_agent
     )
+
+# Default task for pipeline
+data_breach_task = make_data_breach_task("{}", {})

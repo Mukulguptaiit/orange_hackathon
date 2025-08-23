@@ -53,3 +53,6 @@ Return ONLY valid JSON:
         expected_output="Strict JSON (threat_type, severity, confidence, iocs, signature)",
         agent=validator_agent
     )
+
+# Default task for pipeline
+validation_task = make_validation_task({}, "{}")

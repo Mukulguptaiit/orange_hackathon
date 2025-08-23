@@ -5,8 +5,8 @@ from .common import get_llm
 
 phishing_agent = Agent(
     role="Phishing Response Agent",
-    goal="Mitigate phishing: block IOCs, educate users, takedown requests, sandbox attachments.",
-    backstory="Expert in email and web phishing campaigns.",
+    goal="Propose precise, actionable steps to contain and mitigate phishing attacks.",
+    backstory="Specialist in phishing, social engineering, credential harvesting, spear phishing.",
     verbose=False,
     llm=get_llm()
 )
@@ -24,12 +24,15 @@ Original Record (JSON):
 
 Output a concise MARKDOWN action plan:
 - Immediate actions (bullets)
-- Blocking/Takedown (bullets)
-- User comms/training (bullets)
-- Monitoring (1–2 bullets)
+- User notification (bullets)
+- Email filtering rules (bullets)
+- Training recommendations (1–2 bullets)
     """.strip()
     return Task(
         description=prompt,
         expected_output="Markdown action plan for phishing",
         agent=phishing_agent
     )
+
+# Default task for pipeline
+phishing_task = make_phishing_task("{}", {})
