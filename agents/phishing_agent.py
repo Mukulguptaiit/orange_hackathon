@@ -1,44 +1,35 @@
-class PhishingAgent:
-    def __init__(self):
-        pass
+# agents/phishing_agent.py
+import json
+from crewai import Agent, Task
+from .common import get_llm
 
-    def identify_phishing_attempts(self, traffic_data):
-        """
-        Analyzes network traffic data to identify potential phishing attempts.
-        
-        Parameters:
-        traffic_data (DataFrame): The network traffic data to analyze.
+phishing_agent = Agent(
+    role="Phishing Response Agent",
+    goal="Mitigate phishing: block IOCs, educate users, takedown requests, sandbox attachments.",
+    backstory="Expert in email and web phishing campaigns.",
+    verbose=False,
+    llm=get_llm()
+)
 
-        Returns:
-        List[dict]: A list of identified phishing attempts with relevant details.
-        """
-        # Placeholder for phishing detection logic
-        phishing_attempts = []
-        # Implement analysis logic here
-        return phishing_attempts
+def make_phishing_task(validated_json: str, record: dict) -> Task:
+    rec = json.dumps(record, default=str)
+    prompt = f"""
+You are the Phishing Response Agent.
 
-    def analyze_content(self, content):
-        """
-        Analyzes the content of network traffic for phishing indicators.
-        
-        Parameters:
-        content (str): The content to analyze.
+Validated Event (JSON):
+{validated_json}
 
-        Returns:
-        bool: True if phishing indicators are found, False otherwise.
-        """
-        # Placeholder for content analysis logic
-        is_phishing = False
-        # Implement content analysis logic here
-        return is_phishing
+Original Record (JSON):
+{rec}
 
-    def report_findings(self, findings):
-        """
-        Generates a report of the identified phishing attempts.
-        
-        Parameters:
-        findings (List[dict]): The findings to report.
-        """
-        # Placeholder for reporting logic
-        # Implement reporting logic here
-        pass
+Output a concise MARKDOWN action plan:
+- Immediate actions (bullets)
+- Blocking/Takedown (bullets)
+- User comms/training (bullets)
+- Monitoring (1–2 bullets)
+    """.strip()
+    return Task(
+        description=prompt,
+        expected_output="Markdown action plan for phishing",
+        agent=phishing_agent
+    )

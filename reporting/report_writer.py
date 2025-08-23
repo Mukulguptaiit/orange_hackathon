@@ -1,19 +1,35 @@
-class ReportWriter:
-    def __init__(self, report_file):
-        self.report_file = report_file
+# reporting/report_writer.py
+import json
+from crewai import Agent, Task
+from agents.common import get_llm  # reuse same LLM
 
-    def generate_report(self, analysis_results):
-        with open(self.report_file, 'w') as file:
-            file.write("Threat Analysis Report\n")
-            file.write("======================\n\n")
-            for result in analysis_results:
-                file.write(f"Threat Type: {result['threat_type']}\n")
-                file.write(f"Description: {result['description']}\n")
-                file.write(f"Severity: {result['severity']}\n")
-                file.write(f"Timestamp: {result['timestamp']}\n")
-                file.write("----------------------\n")
-            file.write("End of Report\n")
+report_writer = Agent(
+    role="Cybersecurity Report Writer",
+    goal="Produce an executive markdown summary with threats, severities, IOCs, signatures, and next steps.",
+    backstory="Summarizes SOC activity into concise, actionable reports.",
+    verbose=False,
+    llm=get_llm()
+)
 
-    def save_report(self):
-        # This method can be expanded to include functionality for saving the report in different formats
-        pass
+def make_report_task(summary_context: dict) -> Task:
+    prompt = f"""
+Write an executive-ready MARKDOWN report for the SOC lead.
+
+Context (JSON):
+{json.dumps(summary_context, indent=2)}
+
+Include:
+- Time window analyzed
+- Totals by threat type and severity (short table or bullets)
+- Notable IOCs and common signatures
+- 3–5 recommended actions for next 24h
+- If applicable, highlight high/critical items
+
+Keep it concise and structured with headings.
+    """.strip()
+
+    return Task(
+        description=prompt,
+        expected_output="Markdown report",
+        agent=report_writer
+    )
