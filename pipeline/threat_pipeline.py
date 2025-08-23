@@ -44,23 +44,9 @@ class ThreatPipeline:
         record_json = json.dumps(row, default=str)
         baseline_json = json.dumps(self.baselines, default=str)
         
-        prompt = f"""
-You are a cybersecurity classifier. Analyze this network log and classify it.
+        prompt = f"""Classify network log: {record_json}
 
-Network Log (JSON):
-{record_json}
-
-Baselines:
-{baseline_json}
-
-Classify the log and return ONLY valid JSON with these exact keys:
-- threat_type: one of ["Phishing", "Malware", "DDoS", "Data Breach", "Brute Force", "Benign", "Other"]
-- severity: one of ["Low", "Medium", "High", "Critical"]
-- iocs: list of observable indicators (IPs, URLs, domains, file hashes) if any
-- signature: concise attack label (e.g., "HTTP flood", "credential stuffing", "ransomware beacon")
-
-Return ONLY the JSON object, no other text:
-"""
+Return JSON: {{"threat_type": "Phishing|Malware|DDoS|Data Breach|Brute Force|Benign|Other", "severity": "Low|Medium|High|Critical", "iocs": ["ip1", "ip2"], "signature": "attack_type"}}"""
         
         result = self._execute_with_llm(prompt)
         if result:
@@ -125,32 +111,9 @@ Return ONLY the JSON object, no other text:
         record_json = json.dumps(row, default=str)
         classification_json = json.dumps(classification, default=str)
         
-        prompt = f"""
-You are a cybersecurity validator. Validate this classification with 5 internal passes and output the majority vote.
+        prompt = f"""Validate: Record: {record_json}, Classification: {classification_json}
 
-Raw Record (JSON):
-{record_json}
-
-Proposed Classification (JSON):
-{classification_json}
-
-Instructions:
-- Internally run 5 independent assessments
-- Majority vote over threat_type and severity from these sets:
-  - threat_type in ["Phishing", "Malware", "DDoS", "Data Breach", "Brute Force", "Benign", "Other"]
-  - severity in ["Low", "Medium", "High", "Critical"]
-- Merge IOCs (union, deduplicate) and pick the most common signature if conflicting
-- Provide a confidence float ∈ [0,1] proportional to vote margin
-
-Return ONLY valid JSON with these exact keys:
-- threat_type: final voted threat type
-- severity: final voted severity
-- confidence: confidence score (0.0 to 1.0)
-- iocs: merged list of IOCs
-- signature: final signature
-
-Return ONLY the JSON object, no other text:
-"""
+Return JSON: {{"threat_type": "final_type", "severity": "final_severity", "confidence": 0.95, "iocs": ["ip1"], "signature": "final_signature"}}"""
         
         result = self._execute_with_llm(prompt)
         if result:
@@ -177,23 +140,9 @@ Return ONLY the JSON object, no other text:
         record_json = json.dumps(record, default=str)
         validated_json_str = json.dumps(validated_json, default=str)
         
-        prompt = f"""
-You are a {threat_type} Response Agent. Generate a precise, actionable response plan.
+        prompt = f"""Generate {threat_type} response plan for: {validated_json_str}
 
-Validated Event (JSON):
-{validated_json_str}
-
-Original Record (JSON):
-{record_json}
-
-Output a concise MARKDOWN action plan with these sections:
-- Immediate actions (bullets)
-- Containment rules (bullets)
-- Eradication/Recovery (bullets)
-- Monitoring (1–2 bullets)
-
-Format as markdown with proper headers and bullet points.
-"""
+Return markdown with: Immediate actions, Containment, Recovery, Monitoring"""
         
         result = self._execute_with_llm(prompt)
         if result:
@@ -215,31 +164,9 @@ Format as markdown with proper headers and bullet points.
         classification_json = json.dumps(classification, default=str)
         validation_json = json.dumps(validation, default=str)
         
-        prompt = f"""
-You are a Security Report Writer. Generate a comprehensive incident report.
+        prompt = f"""Write security report: Record: {record_json}, Class: {classification_json}, Validation: {validation_json}
 
-Original Record (JSON):
-{record_json}
-
-Classification (JSON):
-{classification_json}
-
-Validation (JSON):
-{validation_json}
-
-Response Action Plan:
-{response}
-
-Output a structured MARKDOWN report with:
-- Executive Summary
-- Incident Details
-- Threat Analysis
-- Response Actions
-- Recommendations
-- Timeline
-
-Format as professional markdown with proper headers and sections.
-"""
+Return markdown with: Summary, Details, Analysis, Actions, Recommendations"""
         
         result = self._execute_with_llm(prompt)
         if result:
@@ -310,7 +237,7 @@ Security incident detected and analyzed using AI-powered threat detection.
             self.results.append(result)
             
             print(f"✅ Row {self.index} processed successfully!")
-            return row, final_report
+            return row, result
             
         except Exception as e:
             error_msg = f"Error processing row {self.index}: {str(e)}"

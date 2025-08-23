@@ -41,7 +41,10 @@ def test_real_ai():
         print(f"   {response[:200]}...")
         
         print(f"\n📄 Report (first 200 chars):")
-        print(f"   {report[:200]}...")
+        if isinstance(report, str):
+            print(f"   {report[:200]}...")
+        else:
+            print(f"   {str(report)[:200]}...")
         
         print(f"\n🎉 Real AI is working! Check the web interface for full results.")
         
