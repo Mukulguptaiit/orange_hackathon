@@ -1,35 +1,48 @@
 # reporting/report_writer.py
 import json
 from crewai import Agent, Task
-from agents.common import get_llm  # reuse same LLM
+from agents.common import get_llm
 
 report_writer = Agent(
-    role="Cybersecurity Report Writer",
-    goal="Produce an executive markdown summary with threats, severities, IOCs, signatures, and next steps.",
-    backstory="Summarizes SOC activity into concise, actionable reports.",
+    role="Security Report Writer",
+    goal="Generate comprehensive, structured security incident reports.",
+    backstory="Expert in cybersecurity reporting, incident documentation, and executive summaries.",
     verbose=False,
     llm=get_llm()
 )
 
-def make_report_task(summary_context: dict) -> Task:
+def make_report_task(record: dict, classification: str, validation: str, response: str) -> Task:
+    rec = json.dumps(record, default=str)
     prompt = f"""
-Write an executive-ready MARKDOWN report for the SOC lead.
+You are the Security Report Writer.
 
-Context (JSON):
-{json.dumps(summary_context, indent=2)}
+Generate a comprehensive incident report from:
 
-Include:
-- Time window analyzed
-- Totals by threat type and severity (short table or bullets)
-- Notable IOCs and common signatures
-- 3–5 recommended actions for next 24h
-- If applicable, highlight high/critical items
+Original Record (JSON):
+{rec}
 
-Keep it concise and structured with headings.
+Classification (JSON):
+{classification}
+
+Validation (JSON):
+{validation}
+
+Response Action Plan:
+{response}
+
+Output a structured MARKDOWN report with:
+- Executive Summary
+- Incident Details
+- Threat Analysis
+- Response Actions
+- Recommendations
+- Timeline
     """.strip()
-
     return Task(
         description=prompt,
-        expected_output="Markdown report",
+        expected_output="Structured markdown incident report",
         agent=report_writer
     )
+
+# Default task for pipeline
+report_task = make_report_task({}, "{}", "{}", "")
